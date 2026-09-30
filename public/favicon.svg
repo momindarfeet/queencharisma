@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <rect width="32" height="32" rx="6" fill="#07070A"/>
+  <path d="M6 14 L10 8 L16 12 L22 8 L26 14 L24 22 L8 22 Z" fill="none" stroke="#C9A962" stroke-width="1.4"/>
+  <text x="16" y="21" text-anchor="middle" font-family="Georgia, serif" font-size="11" fill="#C9A962">Q</text>
+</svg>
