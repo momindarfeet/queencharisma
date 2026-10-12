@@ -1,125 +1,74 @@
-import { useEffect, useRef, useState, type ComponentType } from "react";
+import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { ASSEMBLY_FRAME_COUNT, assemblyFrame } from "@/data/media";
 import { SITE } from "@/lib/site";
 
 const LINES = [
   { at: 0, text: "kneel." },
-  { at: 0.18, text: "size 7." },
-  { at: 0.38, text: "brighter than ur gf’s face." },
-  { at: 0.62, text: "pay to speak." },
-  { at: 0.84, text: "queen of darkness." },
+  { at: 0.28, text: "louboutin." },
+  { at: 0.55, text: "size 7." },
+  { at: 0.8, text: "brighter." },
 ];
 
 export function AssemblyHero() {
-  const pin = useRef<HTMLDivElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const progress = useRef(0);
-  const current = useRef(0);
-  const frames = useRef<HTMLImageElement[]>([]);
+  const pin = useRef<HTMLElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
   const [line, setLine] = useState(LINES[0].text);
-  const [Shards, setShards] = useState<ComponentType<{
-    progress: React.MutableRefObject<number>;
-  }> | null>(null);
 
   useEffect(() => {
-    const imgs: HTMLImageElement[] = [];
-    for (let i = 1; i <= ASSEMBLY_FRAME_COUNT; i++) {
-      const img = new Image();
-      img.decoding = "async";
-      img.src = assemblyFrame(i);
-      imgs.push(img);
-    }
-    frames.current = imgs;
-
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const small = window.innerWidth < 720;
-    if (!reduce && !small) {
-      void import("./assembly-shards").then((m) => setShards(() => m.AssemblyShards));
-    }
-
     gsap.registerPlugin(ScrollTrigger);
     const st = ScrollTrigger.create({
       trigger: pin.current,
       start: "top top",
       end: "bottom bottom",
-      scrub: 0.7,
+      scrub: 0.4,
       onUpdate: (self) => {
-        progress.current = self.progress;
-        const L = [...LINES].reverse().find((l) => self.progress >= l.at);
-        if (L) setLine(L.text);
+        const next = [...LINES].reverse().find((l) => self.progress >= l.at);
+        if (next) setLine(next.text);
+        const v = videoRef.current;
+        if (!v || !Number.isFinite(v.duration) || v.duration <= 0) return;
+        if (self.progress < 0.015) {
+          if (v.paused) void v.play().catch(() => {});
+          return;
+        }
+        v.pause();
+        const t = Math.min(v.duration - 0.05, self.progress * (v.duration - 0.05));
+        if (Math.abs(v.currentTime - t) > 0.035) v.currentTime = t;
       },
     });
-
-    let raf = 0;
-    const draw = () => {
-      const c = canvasRef.current;
-      const ctx = c?.getContext("2d");
-      if (c && ctx) {
-        const target = progress.current * (ASSEMBLY_FRAME_COUNT - 1);
-        current.current += (target - current.current) * 0.14;
-        const idx = Math.max(0, Math.min(ASSEMBLY_FRAME_COUNT - 1, Math.round(current.current)));
-        const img = frames.current[idx];
-        const dpr = Math.min(window.devicePixelRatio || 1, 1.75);
-        const w = c.clientWidth;
-        const h = c.clientHeight;
-        if (w && h && (c.width !== Math.floor(w * dpr) || c.height !== Math.floor(h * dpr))) {
-          c.width = Math.floor(w * dpr);
-          c.height = Math.floor(h * dpr);
-        }
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-        ctx.fillStyle = "#161411";
-        ctx.fillRect(0, 0, w, h);
-        if (img && img.complete && img.naturalWidth) {
-          const ir = img.naturalWidth / img.naturalHeight;
-          const cr = w / h;
-          let dw = w;
-          let dh = h;
-          let dx = 0;
-          let dy = 0;
-          if (ir > cr) {
-            dw = h * ir;
-            dx = (w - dw) / 2;
-          } else {
-            dh = w / ir;
-            dy = (h - dh) / 2;
-          }
-          ctx.drawImage(img, dx, dy, dw, dh);
-          ctx.fillStyle = "rgba(22,20,17,0.18)";
-          ctx.fillRect(0, 0, w, h);
-        }
-      }
-      raf = requestAnimationFrame(draw);
-    };
-    raf = requestAnimationFrame(draw);
-
-    return () => {
-      st.kill();
-      cancelAnimationFrame(raf);
-    };
+    return () => st.kill();
   }, []);
 
   return (
-    <section ref={pin} className="relative z-0 h-[180vh] bg-ink">
-      <div className="sticky top-16 h-[calc(100svh-4rem)] overflow-hidden sm:top-[4.25rem] sm:h-[calc(100svh-4.25rem)]">
-        <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" />
-        {Shards ? (
-          <div className="pointer-events-none absolute inset-0">
-            <Shards progress={progress} />
-          </div>
-        ) : null}
-
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink via-ink/50 to-ink/55" />
-
-        <div className="absolute inset-x-0 bottom-0 z-10 bg-ink/80 px-5 pt-16 pb-10 sm:px-8 sm:pb-12">
-          <p className="font-sans text-[10px] tracking-[0.22em] text-gold uppercase sm:text-[11px]">
+    <section ref={pin} className="relative h-[160vh] bg-ink">
+      <div className="sticky top-14 grid h-[calc(100svh-3.5rem)] grid-rows-[minmax(0,1fr)_auto] bg-ink lg:grid-cols-[minmax(280px,22rem)_minmax(0,1fr)] lg:grid-rows-1">
+        <div className="relative min-h-0 overflow-hidden lg:order-2">
+          <video
+            ref={videoRef}
+            className="absolute inset-0 h-full w-full object-cover object-[center_20%]"
+            src="/media/videos/louboutin-web.mp4"
+            poster="/media/frames/lb-008.jpg"
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="auto"
+          />
+        </div>
+        <div className="flex flex-col justify-end bg-ink px-5 pt-5 pb-6 sm:px-7 lg:order-1 lg:justify-between lg:py-10">
+          <p className="hidden font-sans text-[11px] tracking-[0.22em] text-gold uppercase lg:block">
             {SITE.subline}
           </p>
-          <h1 className="mt-3 max-w-4xl font-display text-5xl leading-[0.9] text-bone italic sm:text-7xl md:text-8xl">
-            {line}
-          </h1>
-          <p className="mt-3 font-display text-lg text-gold italic">scroll.</p>
+          <div>
+            <p className="font-sans text-[10px] tracking-[0.22em] text-gold uppercase">
+              {SITE.handle} · 7 US
+            </p>
+            <h1 className="mt-2 font-display text-[3.5rem] leading-[0.84] text-bone italic sm:text-7xl lg:text-[5.6rem]">
+              {line}
+            </h1>
+            <p className="mt-3 font-display text-lg text-bone/80 italic">Are you a Louboutin lover?</p>
+            <p className="mt-4 font-sans text-[11px] tracking-[0.2em] text-red uppercase">scroll</p>
+          </div>
         </div>
       </div>
     </section>

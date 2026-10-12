@@ -32,22 +32,19 @@ export function SiteNav() {
 
   return (
     <>
-      <header className="fixed inset-x-0 top-0 z-[60] border-b border-white/10 bg-ink">
-        <div className="mx-auto flex h-16 max-w-[1600px] items-center justify-between px-4 sm:h-[4.25rem] sm:px-7">
-          <Link to="/" className="font-display text-[1.65rem] leading-none text-paper italic" onClick={() => setOpen(false)}>
+      <header className="fixed inset-x-0 top-0 z-[60] border-b border-ink/10 bg-paper text-ink">
+        <div className="mx-auto flex h-14 max-w-[1600px] items-center justify-between px-4 sm:px-7">
+          <Link to="/" className="font-display text-[1.55rem] leading-none italic" onClick={() => setOpen(false)}>
             {SITE.name}
           </Link>
-          <div className="flex items-center gap-6">
-            <Link
-              to="/approach"
-              className="hidden font-sans text-[11px] tracking-[0.18em] text-paper uppercase sm:inline"
-            >
+          <div className="flex items-center gap-5">
+            <Link to="/approach" className="hidden font-sans text-[11px] tracking-[0.18em] uppercase sm:inline">
               Approach
             </Link>
             <button
               type="button"
               aria-label={open ? "Close index" : "Open index"}
-              className="font-sans text-[11px] tracking-[0.18em] text-paper uppercase"
+              className="font-sans text-[11px] tracking-[0.18em] uppercase"
               onClick={() => setOpen((v) => !v)}
             >
               {open ? "Close" : "Index"}
@@ -77,7 +74,6 @@ export function SiteNav() {
             </nav>
             <div className="relative hidden lg:col-span-6 lg:block">
               <img src={preview} alt="" className="absolute inset-0 h-full w-full object-cover" />
-              <div className="absolute inset-0 bg-ink/25" />
             </div>
           </div>
         </div>
