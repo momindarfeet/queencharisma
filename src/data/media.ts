@@ -316,7 +316,7 @@ export const PHOTOS: Photo[] = [
   },
 ];
 
-export const ASSEMBLY_FRAME_COUNT = 44;
+export const ASSEMBLY_FRAME_COUNT = 210;
 
 export function assemblyFrame(i: number) {
   const n = Math.min(ASSEMBLY_FRAME_COUNT, Math.max(1, i));

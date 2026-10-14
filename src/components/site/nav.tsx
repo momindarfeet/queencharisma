@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { FOOTER_NAV, NAV, SITE } from "@/lib/site";
 import { cn } from "@/lib/utils";
@@ -27,12 +27,26 @@ const INDEX = [...NAV, ...FOOTER_NAV].filter(
 export function SiteNav() {
   const [open, setOpen] = useState(false);
   const [hover, setHover] = useState("/the-throne");
+  const [scrolled, setScrolled] = useState(false);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const preview = PREVIEWS[hover] ?? PREVIEWS["/the-throne"];
+  const clear = pathname === "/" && !open && !scrolled;
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 40);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   return (
     <>
-      <header className="fixed inset-x-0 top-0 z-[60] border-b border-ink/10 bg-paper text-ink">
+      <header
+        className={cn(
+          "fixed inset-x-0 top-0 z-[60] transition-colors duration-300",
+          clear ? "border-b border-transparent bg-transparent text-bone" : "border-b border-ink/10 bg-paper text-ink",
+        )}
+      >
         <div className="mx-auto flex h-14 max-w-[1600px] items-center justify-between px-4 sm:px-7">
           <Link to="/" className="font-display text-[1.55rem] leading-none italic" onClick={() => setOpen(false)}>
             {SITE.name}
